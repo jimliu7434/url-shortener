@@ -8,8 +8,9 @@ import (
 )
 
 type ApplicationConfig struct {
+	IDLen             int    `mapstructure:"idLen"`
 	Domain            string `mapstructure:"domain"`
-	DefaultExpireDays string `mapstructure:"defaultExpireDays"`
+	DefaultExpireDays int    `mapstructure:"defaultExpireDays"`
 }
 
 func (o *ApplicationConfig) Show(log *logrus.Entry) {

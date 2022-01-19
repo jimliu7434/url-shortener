@@ -40,7 +40,7 @@ func main() {
 		log.TraceLog.Errorf("[Redis] ping error: %s", err.Error())
 		panic(err)
 	}
-	log.TraceLog.Infof("[Redis] connected")
+	log.TraceLog.Info("[Redis] connected")
 
 	gin.SetMode(gin.ReleaseMode)
 

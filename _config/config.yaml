@@ -3,6 +3,7 @@ server:
   logFile: false
 
 app:  
+  idLen: 6
   domain: "http://localhost/"
   defaultExpireDays: 60
 

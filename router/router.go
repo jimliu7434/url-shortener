@@ -26,7 +26,7 @@ func SetupRouter(isDebugMode bool) *gin.Engine {
 		rAPI.POST("/urls", handler.Create())
 	}
 
-	r.GET("/:uid", middleware.GetOrigURLData(), handler.Redirect())
+	r.GET("/:uid", handler.Redirect())
 
 	return r
 }

@@ -24,6 +24,10 @@
 * Web: **Gin**
 * Logger: **logrus** + **lumberjack** (logrotate)
 
+## API
+
+[文件](./api.md)
+
 ## Run / Test / Build
 
 need: **Golang 1.16 up**

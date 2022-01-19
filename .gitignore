@@ -1,0 +1,12 @@
+/_log
+*.go__
+*/_archive
+/_archive
+.vscode
+__debug_*
+/test
+/public/node_modules
+public/build
+app
+*.db
+_db/**/*.db

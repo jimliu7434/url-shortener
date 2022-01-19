@@ -1,0 +1,14 @@
+server:
+  port: ":10000"
+  logFile: false
+
+app:  
+  domain: "http://localhost/"
+  defaultExpireDays: 60
+
+redis: 
+  addr: "10.99.0.104:6379"
+  password: ""
+  db: 0
+  
+

@@ -1,162 +1,22 @@
-# otp-service
+# url-shortener
 
 ## 需求
 
-[requirements](./requirements.md)
+* 將長網址縮短為 n 碼短網址代碼
+* 需能設置 ExpireAt 
+* 在未達 ExpireAt 時，呼叫短網址將轉址到原長網址
+* 超過 ExpireAt 後，回傳 404 notfound
 
-## 包版
+## 設計思維
 
-[build](./build.md)
+* 以 Restful API 為基礎
+* 縮網址服務通常讀多寫少，以能快速搜索到 Original URL 為主要考量，Key-Value Pair DB 是首選
+* 有 ExpireAt 需求，需要可以在 DB 的每一筆資料上設置過期時間， Redis 有此功能，過期的資料會自動消失，不需另外實作清除
+* 日後也許會增加 metrics 記錄使用次數等等，可以使用 Redis 做基本的 Counting
 
-## 部署
+## 後續討論
 
-[deploy](./deploy.md)
-
-## API
-
-| API     | Method | Description                      |
-| :------ | :----- | :------------------------------- |
-| /create | POST   | 產生 OTP 並寄出 email 或寄發簡訊 |
-| /verify | POST   | 驗證 OTP                         |
-
-### API Key
-
-HTTP POST **querystring** or **header** 需埋入指定 API Key 以驗證為合法服務  
-若未依規定埋入對應 API Key ，會收到 `403` forbidden 代碼  
-
-測試 apikey 如下：  
-
-| Service | Key                                  |
-| :-----: | :----------------------------------- |
-|  test   | 6e4d8aab-1ef5-487d-a72e-f6e5ed3655ee |
-
-ex:  
-
-   ```txt
-   [POST] /create?apikey=6e4d8aab-1ef5-487d-a72e-f6e5ed3655ee
-   [POST] /verify?apikey=6e4d8aab-1ef5-487d-a72e-f6e5ed3655ee
-   ```
-
-### [POST] /create
-
-* request
-
-   ```json
-   [POST] /create
-   {
-       "email": "abc@mitake.com.tw",
-       "mobile": "0912345678",
-       "uid": "hasheduidstring",
-       "metrics": "platform=ios&device=phone&os=15.0.0"
-   }
-   ```
-
-   | Props   | Type   | Must | Description     |
-   | :------ | :----- | :--- | :-------------- |
-   | email   | string | N    | 寄發 email 目標 |
-   | mobile  | string | N    | 寄發 簡訊 目標  |
-   | uid     | string | Y    | 登入帳號        |
-   | metrics | string | N    | 裝置資訊        |
-
-*※ email & mobile 可以擇一輸入或都輸入，若都沒有輸入則會回傳錯誤訊息*
-
-* response
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "result": true
-   }
-   ```
-
-   ```json
-   {
-       "result": false,
-       "reason": "MAXTIMES"
-   }
-   ```
-
-   ```json
-   {
-       "result": false,
-       "reason": "ERROR"
-   }
-   ```
-
-   | Props  | Type   | Must | Description                                          |
-   | :----- | :----- | :--- | :--------------------------------------------------- |
-   | result | bool   | Y    | 寄發結果                                             |
-   | id     | string | N    | OTP ID，亂數大小寫英數字，長度 4~6 <br> 執行成功才會產生， |
-   | reason | string | N    | 失敗原因                                             |
-
-   | Reason    | Description                                                     |
-   | :-------- | :-------------------------------------------------------------- |
-   | ERROR     | 系統錯誤                                                        |
-   | FORBIDDEN | APIKey 有誤                                                     |
-   | BADREQ    | 輸入參數內容有誤 <br> 例如 email & mobile 均未傳入，或者 uid 未傳入 |
-   | MAXTIMES  | 用戶已達每日次數上限                                            |
-
-### [POST] /verify
-
-* request
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "otp": "123456"
-   }
-   ```
-
-   | Props | Type   | Must | Description                        |
-   | :---- | :----- | :--- | :--------------------------------- |
-   | id    | string | Y    | OTP ID，亂數大小寫英數字，長度 4~6 |
-   | otp   | string | Y    | OTP 答案字串                       |
-
-* response
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "result": true
-   }
-   ```
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "result": false,
-       "reason": "FAILED"
-   }
-   ```
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "result": false,
-       "reason": "EXPIRED"
-   }
-   ```
-
-   ```json
-   {
-       "id": "1E5Pc",
-       "result": false,
-       "reason": "USED"
-   }
-   ```
-
-   | Props  | Type   | Must | Description         |
-   | :----- | :----- | :--- | :------------------ |
-   | id     | string | Y    | 回送呼叫時的 OTP ID |
-   | result | bool   | Y    | 驗證結果            |
-   | reason | string | N    | 失敗原因            |
-
-   | Reason    | Description               |
-   | :-------- | :------------------------ |
-   | ERROR     | 系統錯誤                  |
-   | FORBIDDEN | APIKey 有誤               |
-   | BADREQ    | 輸入參數內容有誤          |
-   | FAILED    | 驗證失敗： OTP 答案錯誤   |
-   | NOTFOUND  | 驗證失敗： 找不到 OTP ID  |
-   | USED      | 驗證失敗： OTP 已被使用過 |
-   | EXPIRED   | 驗證失敗： OTP 已過期     |
+* 同 OrigURL + 同 ExpireAt 是否需要產生相同結果？ 此時 uid 是否適合用亂數，或需改用 URL hash？
+* 是否需要記錄 Metrics？ 例如 locale , click times
+* 超過 ExpireAt 的 URL 是否需在 DB 留存記錄？
+* 如果服務遭遇大量呼叫「不存在」的短網址，可以在每一個短網址末尾加上 1~2 碼 CheckSum，只要 CheckSum 與前面 uid 內容不符合者，直接回傳 404，以減少大量查詢 DB 的行為發生，等於使用 Application 層的 CPU 消耗來換取少無謂的存取 DB 層，畢竟 Application 層的擴展是比較方便的

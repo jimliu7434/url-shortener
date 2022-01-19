@@ -12,7 +12,7 @@ func Dial(addr string, psw string, db int) (err error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: psw,
-		DB:       0,
+		DB:       db,
 	})
 
 	err = rdb.Ping(context.Background()).Err()

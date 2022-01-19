@@ -6,9 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var rdb *redis.Client
-
-func Dial(addr string, psw string, db int) (err error) {
+func Dial(addr string, psw string, db int) (rdb *redis.Client, err error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: psw,

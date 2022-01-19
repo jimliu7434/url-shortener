@@ -35,11 +35,13 @@ func init() {
 func main() {
 	redisConf := config.Root.Redis
 
-	err := model.Dial(redisConf.Address, redisConf.Password, redisConf.DB)
+	rdb, err := model.Dial(redisConf.Address, redisConf.Password, redisConf.DB)
 	if err != nil {
 		log.TraceLog.Errorf("[Redis] ping error: %s", err.Error())
 		panic(err)
 	}
+	model.NewURL(rdb)
+
 	log.TraceLog.Info("[Redis] connected")
 
 	gin.SetMode(gin.ReleaseMode)

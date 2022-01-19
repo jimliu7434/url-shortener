@@ -1,0 +1,15 @@
+server:
+  port: ":10005"
+  logFile: false
+
+app:  
+  idLen: 6
+  domain: "http://localhost:10005/"
+  defaultExpireDays: 60
+
+redis: 
+  addr: "10.99.0.104:6379"
+  password: ""
+  db: 3
+  
+

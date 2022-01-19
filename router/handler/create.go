@@ -31,7 +31,8 @@ func Create() gin.HandlerFunc {
 			return
 		}
 
-		// TODO: check in.URL is a real URL
+		// TODO: check in.URL is a real URL ?
+		// TODO: check in.URL is an infine-redirect-loop URL ?
 
 		// generate new uid
 		idLen := config.Root.Application.IDLen

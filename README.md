@@ -54,4 +54,3 @@ GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -tags="jsoniter" -o service .
 * [TODO] 檢查 OrigURL 是否指向本服務，避免造成無限 Redirect 循環
 * [Thought] 同 OrigURL + 同 ExpireAt 是否需要產生相同結果？ 此時 uid 是否適合用亂數，或需改用 URL hash？
 * [Thought] 超過 ExpireAt 的 URL 是否需在 DB 留存記錄？
-* 
